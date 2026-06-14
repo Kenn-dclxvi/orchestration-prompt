@@ -1,15 +1,15 @@
-# Orchestration Prompt Set
+# オーケストレーション用プロンプトセット
 
-This repository contains a generic prompt set for agent-based implementation workflows.
+このリポジトリは、エージェントベースの実装ワークフロー向け汎用プロンプトセットである。
 
-It separates four responsibilities:
+責務を以下の4つに分離する。
 
-- Parent agent: normalizes approved work, launches role agents, and manages results.
-- Plan agent: drafts implementation instructions without creating execution permission.
-- Implement agent: changes only the approved target, scope, and done conditions.
-- Audit and review agents: inspect results non-destructively with separate classification systems.
+- 親エージェント: 承認済み作業を整理し、ロールエージェントを起動し、結果を管理する。
+- プランエージェント: 実行許可を生成せず、実装指示書の草案を作る。
+- 実装エージェント: 承認済みの対象、範囲、完了条件だけを変更する。
+- 監査エージェントとレビューエージェント: それぞれ別の分類体系で、結果を非破壊に確認する。
 
-## Contents
+## 構成
 
 ```text
 AGENTS.md
@@ -32,17 +32,16 @@ overlays/
     repo-context.md
 ```
 
-## How To Use
+## 使い方
 
-1. Read `AI_APPLY_GUIDE.md`.
-2. Create a project-specific overlay for the target repository.
-3. Copy or adapt `AGENTS.md`, `prompts/`, and any needed templates into the target repository.
-4. Keep project-specific paths, commands, and canonical documents in the overlay or target repository, not in this generic prompt set.
-5. Use `docs/orchestration-process.md` as the process specification and `docs/prompt-guide.md` as the design guide.
+1. `AI_APPLY_GUIDE.md` を読む。
+2. 対象リポジトリ向けのプロジェクト固有オーバーレイを作る。
+3. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
+4. プロジェクト固有のパス、コマンド、正本文書は、この汎用プロンプトセットではなく、オーバーレイまたは対象リポジトリ側に置く。
+5. `docs/orchestration-process.md` をプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。
 
-## Contract
+## 契約
 
-This prompt set does not grant execution permission by itself. Execution permission must come from the user's current instruction or from an approved implementation instruction in the target repository.
+このプロンプトセット自体は実行許可を与えない。実行許可は、現在のユーザー指示または対象リポジトリ内の承認済み実装指示書から与えられる必要がある。
 
-Do not commit, push, deploy, connect to production, send external data, or broaden scope unless the current user instruction explicitly permits it.
-
+現在のユーザー指示で明示許可されていない限り、コミット、プッシュ、デプロイ、本番接続、外部送信、範囲拡張を行わない。
