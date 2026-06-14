@@ -30,6 +30,17 @@ templates/
 overlays/
   example/
     repo-context.md
+  the-caption/
+    README.md
+    repo-context.md
+    files/
+      AGENTS.md
+      .agents/
+        prompts/
+          plan.md
+          implement.md
+          audit.md
+          review.md
 ```
 
 ## 使い方
@@ -37,8 +48,17 @@ overlays/
 1. `AI_APPLY_GUIDE.md` を読む。
 2. 対象リポジトリ向けのプロジェクト固有オーバーレイを作る。
 3. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
-4. プロジェクト固有のパス、コマンド、正本文書は、この汎用プロンプトセットではなく、オーバーレイまたは対象リポジトリ側に置く。
-5. `docs/orchestration-process.md` をプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。
+4. `overlays/<name>/files/` がある場合は、対象リポジトリ相対パスとして共通ファイルの後に重ねる。
+5. プロジェクト固有のパス、コマンド、正本文書は、この汎用プロンプトセットではなく、オーバーレイまたは対象リポジトリ側に置く。
+6. `docs/orchestration-process.md` をプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。
+
+## オーバーレイ
+
+`overlays/<name>/repo-context.md` は、適用先固有の参照文書、配置先、出力言語、運用制約を記録する。
+
+`overlays/<name>/files/` は、対象リポジトリへ重ねるファイルを対象リポジトリ相対パスで置く。共通ファイルを配置した後にこのディレクトリの内容を適用することで、共通プロンプトと適用先固有ルールを分離する。
+
+THE-CAPTION 用の現在形は `overlays/the-caption/` に置く。
 
 ## 契約
 
