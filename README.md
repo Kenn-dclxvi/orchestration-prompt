@@ -35,12 +35,11 @@ overlays/
     repo-context.md
     files/
       AGENTS.md
-      .agents/
-        prompts/
-          plan.md
-          implement.md
-          audit.md
-          review.md
+      prompts/
+        plan.md
+        implement.md
+        audit.md
+        review.md
 ```
 
 ## 使い方
