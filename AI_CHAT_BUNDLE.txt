@@ -1,13 +1,13 @@
 # AI Chat Bundle: orchestration-prompt
 
-Generated: 2026-06-17
+Generated: 2026-06-19
 
 This file merges the repository prompt set into one text file for passing to an AI chat.
 
 ## Included Files
 
 - README.md
-- AI_APPLY_GUIDE.md
+- docs/AI 適用ガイド.md
 - AGENTS.md
 - .gitignore
 - docs/orchestration-process.md
@@ -46,13 +46,13 @@ This file merges the repository prompt set into one text file for passing to an 
 
 ```text
 AGENTS.md
-AI_APPLY_GUIDE.md
 prompts/
   plan.md
   implement.md
   audit.md
   review.md
 docs/
+  AI 適用ガイド.md
   orchestration-process.md
   prompt-guide.md
 templates/
@@ -77,7 +77,7 @@ overlays/
 
 ## 使い方
 
-1. `AI_APPLY_GUIDE.md` を読む。
+1. `docs/AI 適用ガイド.md` を読む。
 2. 対象リポジトリ向けのプロジェクト固有オーバーレイを作る。
 3. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
 4. `overlays/<name>/files/` がある場合は、対象リポジトリ相対パスとして共通ファイルの後に重ねる。
@@ -100,7 +100,7 @@ THE-CAPTION 用の現在形は `overlays/the-caption/` に置く。
 
 ===== END README.md =====
 
-===== BEGIN AI_APPLY_GUIDE.md =====
+===== BEGIN docs/AI 適用ガイド.md =====
 
 # AI 適用ガイド
 
@@ -166,7 +166,7 @@ THE-CAPTION 用の現在形は `overlays/the-caption/` に置く。
 
 停止理由がない場合は `停止理由: なし` と書く。
 
-===== END AI_APPLY_GUIDE.md =====
+===== END docs/AI 適用ガイド.md =====
 
 ===== BEGIN AGENTS.md =====
 

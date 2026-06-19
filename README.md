@@ -13,13 +13,13 @@
 
 ```text
 AGENTS.md
-AI_APPLY_GUIDE.md
 prompts/
   plan.md
   implement.md
   audit.md
   review.md
 docs/
+  AI 適用ガイド.md
   orchestration-process.md
   prompt-guide.md
 templates/
@@ -44,7 +44,7 @@ overlays/
 
 ## 使い方
 
-1. `AI_APPLY_GUIDE.md` を読む。
+1. `docs/AI 適用ガイド.md` を読む。
 2. 対象リポジトリ向けのプロジェクト固有オーバーレイを作る。
 3. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
 4. `overlays/<name>/files/` がある場合は、対象リポジトリ相対パスとして共通ファイルの後に重ねる。
