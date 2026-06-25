@@ -13,13 +13,15 @@
 
 ```text
 AGENTS.md
+AI_CHAT_BUNDLE.txt              # 生成物: AI制御セットを束ねたテキスト
 prompts/
   plan.md
   implement.md
   audit.md
   review.md
 docs/
-  AI 適用ガイド.md
+  AIエージェント活用指針.md      # 人間向け: 段階0–4の習熟の道筋
+  AI 適用ガイド.md               # AI向け: 別リポジトリへの適用手順
   orchestration-process.md
   prompt-guide.md
 templates/
@@ -40,16 +42,25 @@ overlays/
         implement.md
         audit.md
         review.md
+scripts/
+  build-bundle.sh               # AI_CHAT_BUNDLE.txt を生成する
+  check-placement.sh            # AGENTS.md の配置規律を検査する
 ```
+
+## 2つのガイド
+
+- `docs/AIエージェント活用指針.md` は人間向けの習熟文書である。段階0–4の道筋でエージェント活用を広げる考え方を示す。AI制御セットではないため束ね（`AI_CHAT_BUNDLE.txt`）には含めない。
+- `docs/AI 適用ガイド.md` は AI向けの適用手順である。AI にこのプロンプトセットを別リポジトリへ展開させるときに渡す。
 
 ## 使い方
 
-1. `docs/AI 適用ガイド.md` を読む。
-2. 対象リポジトリ向けのプロジェクト固有オーバーレイを作る。
-3. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
-4. `overlays/<name>/files/` がある場合は、対象リポジトリ相対パスとして共通ファイルの後に重ねる。
-5. プロジェクト固有のパス、コマンド、正本文書は、この汎用プロンプトセットではなく、オーバーレイまたは対象リポジトリ側に置く。
-6. `docs/orchestration-process.md` をプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。
+1. 導入の考え方を理解するには `docs/AIエージェント活用指針.md` を読む。
+2. AI に別リポジトリへ適用させるには `docs/AI 適用ガイド.md` を渡す。
+3. 対象リポジトリ向けのプロジェクト固有オーバーレイを作る。
+4. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
+5. `overlays/<name>/files/` がある場合は、対象リポジトリ相対パスとして共通ファイルの後に重ねる。
+6. プロジェクト固有のパス、コマンド、正本文書は、この汎用プロンプトセットではなく、オーバーレイまたは対象リポジトリ側に置く。
+7. `docs/orchestration-process.md` をプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。
 
 ## オーバーレイ
 
@@ -58,6 +69,11 @@ overlays/
 `overlays/<name>/files/` は、対象リポジトリへ重ねるファイルを対象リポジトリ相対パスで置く。共通ファイルを配置した後にこのディレクトリの内容を適用することで、共通プロンプトと適用先固有ルールを分離する。
 
 THE-CAPTION 用の現在形は `overlays/the-caption/` に置く。
+
+## スクリプト
+
+- `scripts/build-bundle.sh` は AI制御セット（README・`AGENTS.md`・`prompts/`・`templates/`・`docs/`・`overlays/`）を `AI_CHAT_BUNDLE.txt` へ束ねる。AIチャットへまとめて渡すときに使う。対象ファイルが欠けていれば停止する。
+- `scripts/check-placement.sh` は、構成項目の逐語列挙が `AGENTS.md` 本文へ再混入していないか（配置規律）を検査する。規律の根拠は `docs/prompt-guide.md`。
 
 ## 契約
 
