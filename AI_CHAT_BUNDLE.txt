@@ -1,6 +1,6 @@
 # AI Chat Bundle: orchestration-prompt
 
-Generated: 2026-06-25
+Generated: 2026-06-26
 
 This file merges the repository prompt set into one text file for passing to an AI chat.
 
@@ -77,7 +77,7 @@ overlays/
         review.md
 scripts/
   build-bundle.sh               # AI_CHAT_BUNDLE.txt を生成する
-  check-placement.sh            # AGENTS.md の配置規律を検査する
+  check-placement.sh            # root と overlay の AGENTS.md の配置規律を検査する
 ```
 
 ## 2つのガイド
@@ -106,7 +106,7 @@ THE-CAPTION 用の現在形は `overlays/the-caption/` に置く。
 ## スクリプト
 
 - `scripts/build-bundle.sh` は AI制御セット（README・`AGENTS.md`・`prompts/`・`templates/`・`docs/`・`overlays/`）を `AI_CHAT_BUNDLE.txt` へ束ねる。AIチャットへまとめて渡すときに使う。対象ファイルが欠けていれば停止する。
-- `scripts/check-placement.sh` は、構成項目の逐語列挙が `AGENTS.md` 本文へ再混入していないか（配置規律）を検査する。規律の根拠は `docs/prompt-guide.md`。
+- `scripts/check-placement.sh` は、構成項目の逐語列挙が root と overlay の `AGENTS.md` 本文へ再混入していないか（配置規律）を検査する。規律の根拠は `docs/prompt-guide.md`。
 
 ## 契約
 
@@ -721,7 +721,7 @@ AI 駆動開発では、次の順序を守る。
 - 同一概念の成立条件を `AGENTS.md` 本文の複数セクションに重複定義しない。
 - 新ルール追加時は上記チェックリストを適用し、手続き・列挙・出力様式は正本へ送る。
 
-この不変条件は機械検査できる。`scripts/check-placement.sh` が `AGENTS.md` 本文への構成項目の逐語列挙の再混入を grep で検出する。レビューSAの観点または CI に組み込む。
+この不変条件は機械検査できる。`scripts/check-placement.sh` が root と overlay の `AGENTS.md` 本文への構成項目の逐語列挙の再混入を grep で検出する。レビューSAの観点または CI に組み込む。
 
 ## 非破壊
 - 「分析して」「レビューして」「確認して」「案を出して」「比較して」は、明示対象に限り非破壊として扱う。
