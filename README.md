@@ -13,6 +13,7 @@
 
 ```text
 AGENTS.md
+CLAUDE.md                       # AGENTS.md へのシンボリックリンク: Claude Code にセッション開始時の統治を自動ロードさせる。束ねには含めない
 AI_CHAT_BUNDLE.txt              # 生成物: AI制御セットを束ねたテキスト
 prompts/
   plan.md
