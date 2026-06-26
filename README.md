@@ -44,7 +44,7 @@ overlays/
         review.md
 scripts/
   build-bundle.sh               # AI_CHAT_BUNDLE.txt を生成する
-  check-placement.sh            # AGENTS.md の配置規律を検査する
+  check-placement.sh            # root と overlay の AGENTS.md の配置規律を検査する
 ```
 
 ## 2つのガイド
@@ -73,7 +73,7 @@ THE-CAPTION 用の現在形は `overlays/the-caption/` に置く。
 ## スクリプト
 
 - `scripts/build-bundle.sh` は AI制御セット（README・`AGENTS.md`・`prompts/`・`templates/`・`docs/`・`overlays/`）を `AI_CHAT_BUNDLE.txt` へ束ねる。AIチャットへまとめて渡すときに使う。対象ファイルが欠けていれば停止する。
-- `scripts/check-placement.sh` は、構成項目の逐語列挙が `AGENTS.md` 本文へ再混入していないか（配置規律）を検査する。規律の根拠は `docs/prompt-guide.md`。
+- `scripts/check-placement.sh` は、構成項目の逐語列挙が root と overlay の `AGENTS.md` 本文へ再混入していないか（配置規律）を検査する。規律の根拠は `docs/prompt-guide.md`。
 
 ## 契約
 
