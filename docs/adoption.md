@@ -39,13 +39,21 @@ ln -s AGENTS.md CLAUDE.md
 
 ## 4. 適用の正しさの確認方法
 
-`README.md` §スクリプトに記載済みの `scripts/check-placement.sh` で、root と overlay の `AGENTS.md` の配置規律を検査する。
+適用先の検証の主役は `scripts/check-adoption.sh` である。対象リポジトリのパスを引数に渡して実行する。
+
+```text
+bash scripts/check-adoption.sh <対象リポジトリのパス>
+```
+
+このスクリプトは、標準構成の必要ファイルが対象パスに揃っているかと、汎用ファイルに絶対パス(`/Users/` `/home/`)などの固有情報が混入していないかを検査する。引数を省略するとこのリポジトリのルートが対象になる。
+
+`scripts/check-placement.sh` は補助であり、適用先ディレクトリの検証ではない。このリポジトリ自身(root)と各 overlay の `AGENTS.md` 本文へ構成項目の逐語列挙が再混入していないかを検査する配置規律チェックである。
 
 ```text
 bash scripts/check-placement.sh
 ```
 
-このスクリプトは、構成項目の逐語列挙が `AGENTS.md` 本文へ再混入していないかを検出する。規律の根拠は `docs/prompt-guide.md` §配置規律にある。
+規律の根拠は `docs/prompt-guide.md` §配置規律にある。
 
 ## 5. 雛形 overlays/_template/ の使い方
 
