@@ -13,6 +13,7 @@ files=(
   AGENTS.md
   .gitignore
   docs/orchestration-process.md
+  docs/orchestration-v2.md
   docs/prompt-guide.md
   prompts/plan.md
   prompts/implement.md
