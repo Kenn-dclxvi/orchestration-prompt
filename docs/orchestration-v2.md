@@ -96,8 +96,8 @@ AI は、依存関係があるタスクを無理に並列化しない。依存�
 
 Dependency Planning は、不要な確認、無駄な待ち時間、実装後の手戻りを最小化するために使う。
 
-## Parallel Execution
-Parallel Execution は、独立したタスクを物理的に同時実行する標準動作ではない。ここでは、依存関係上独立して扱える作業を計画上の並列可能性として識別することを指す。
+## Parallel Scheduling
+Parallel Scheduling は、独立したタスクを物理的に同時実行する標準動作ではない。ここでは、依存関係上独立して扱える作業を計画上の並列可能性として識別することを指す。
 
 AI は、逐次実行だけを前提にしない。依存関係がない作業は、速度向上のために、同時実行ではなく実行順序候補と分割候補の観点で扱う。
 
@@ -108,7 +108,7 @@ AI は、逐次実行だけを前提にしない。依存関係がない作業�
 - テストコード作成
 - ドキュメント更新
 
-Parallel Execution は、Contract、Constraints、Quality Gate を満たす範囲で計画観点として扱う。並列可能性の整理によって境界が不明確になる場合、AI は並列可能扱いせず、必要な境界を返す。
+Parallel Scheduling は、Contract、Constraints、Quality Gate を満たす範囲で計画観点として扱う。並列可能性の整理によって境界が不明確になる場合、AI は並列可能扱いせず、必要な境界を返す。
 
 ## Execution
 Execution は、Planning Engine が構築した計画に従って作業を進める段階である。
@@ -175,10 +175,30 @@ Contract は、計画を固定するものではない。Contract はゴール�
 Contract は次を保持する。
 
 - `goal`: 達成すべき結果
+- `scope`: 対象と範囲
 - `constraints`: 禁止、停止、除外操作
 - `done`: 完了条件
+- `quality_criteria`: 品質基準
 
 Contract に未定義の境界を AI が補完してはならない。Contract が不足している場合、AI は不足項目を返す。
+
+## Execution Contract
+v1 の Plan→Execution 受け渡しでいう Execution Contract は、Plan 成果物を Execution が実行入力として消費するための契約である。これは v2 の Contract / Constraints / Task Graph / Parallel Scheduling / Replan / Quality Gate を、v1 の境界項目と矛盾しない範囲で写像したものであり、現行運用ルールを昇格または変更しない。
+
+Execution Contract は次を保持する。
+
+- Goal: 明示された達成結果。
+- Scope: 明示された対象と範囲。
+- Constraints: 禁止、停止、除外操作、制約。
+- Completion Criteria: 完了条件と品質基準。
+- Task Graph: 前提条件、依存先、独立性を持つ作業要素。
+- 実行順序
+- 並列可能性: 物理並列ではなく計画上の独立性。
+- 停止条件
+- Replan条件
+- テスト要求
+
+Execution が判断してよい範囲は、実装方法の詳細、ファイル編集順、Contract 範囲内で実装に直接必要な軽微なリファクタリング、Toolbox 選択に限る。Goal変更、Scope変更、Contract違反、大きな設計変更、新しい依存関係の発見は、Execution が補完せず Replan へ戻す観測事実として扱う。
 
 ## Constraints
 Constraints は、Planning Engine と Execution が越えてはならない境界である。
@@ -256,6 +276,8 @@ AI は次を判断してよい。
 
 AI は、委譲された判断を Contract の拡張に変換してはならない。
 
+Execution 単体へ委譲する判断は、実装方法の詳細、ファイル編集順、Contract 範囲内で実装に直接必要な軽微なリファクタリング、Toolbox 選択に限る。Goal変更、Scope変更、Contract違反、大きな設計変更、新しい依存関係の発見は、Replan へ戻す。
+
 ## 人間が保持する判断
 人間が保持する判断は、作業境界とリスク受容に関わる決定である。
 
@@ -316,7 +338,7 @@ v2 の自律オーケストレーション設計が v1 の安全性を下げず�
 - Plan フェーズに追加する計画観点を整理する。
 - 追加観点は Goal Definition / Dependency Planning / Task Graph / Parallel Scheduling / Replan条件 / Quality Gate とする。
 - 次PRで、Plan フェーズの本文修正に進むための作業計画を作成できる状態にする。
-- Parallel Execution は、物理的な同時実行ではなく、計画上の並列可能性と依存関係上独立して扱える作業の識別として表現する。
+- Parallel Scheduling は、物理的な同時実行ではなく、計画上の並列可能性と依存関係上独立して扱える作業の識別として表現する。
 
 ### 非対象
 - v1 の全面置き換え
