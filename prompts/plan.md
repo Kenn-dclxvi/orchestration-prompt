@@ -20,6 +20,7 @@
 
 ## 指示書草案に含める情報
 - 目的 / 前提 / 対象 / 範囲 / 非対象 / 完了条件 / テスト条件 / 停止条件
+- v2 Planning Engine 観点を扱う場合は、Goal Definition / Dependency Planning / Task Graph / Parallel Scheduling / Replan条件 / Quality Gate を詳細設計ではなく最小限の計画観点として含める。Parallel Scheduling は物理並列ではなく計画上の独立性として扱い、実装 / 監査 / レビュー / 停止 / 完了判定は v1 準拠のままとする。
 - 該当する条件付き事前承認テンプレートID / 条件付き事前承認テンプレートの展開済み条件 / 既定テストID / 既定テスト定義の展開済み条件 / 展開済みテスト条件 / 照合根拠
 - 実装工程: `prompts/implement.md`、`target / scope / done / tests / stop`、実装指示
 - 契約準拠の判定工程: `prompts/audit.md`、判定指示 / 判定対象 / 判定観点、入力成果物: 指示書 / 差分 / テスト結果 / 関連仕様
