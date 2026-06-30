@@ -31,6 +31,16 @@
 - 指示書として扱うために必要な条件
 - この草案が実行許可ではないこと
 
+## v1計画フェーズの v2 Planning Engine 化プラン
+- このプランは、承認済み方針として `docs/orchestration-v2.md` の「v1計画フェーズの Planning Engine 化実施方針」が渡された場合だけ扱う。
+- 対象は Plan フェーズに限る。v1 の現行運用ルールは維持し、v2 語彙は Plan 段階の追加観点としてだけ扱う。
+- 追加観点は Goal Definition / Dependency Planning / Task Graph / Parallel Scheduling / Replan条件 / Quality Gate として整理する。
+- Parallel Execution / Parallel Scheduling は、物理的な同時実行ではなく、計画上の並列可能性と依存関係上独立して扱える作業の識別として表現する。
+- 実装、監査、レビュー、停止、完了判定は v1 準拠のままとし、手順変更を含めない。
+- DSL の意味変更、`commit` / `push` / `deploy` / 外部送信などの実行許可変更、Plan フェーズ以外への v2 語彙の適用を含めない。
+- 次PRの作業計画には、対象 / 範囲 / 非対象 / 完了条件 / テスト条件 / 停止条件を含める。
+- 次PRの作業計画は、実際の本文修正そのものではなく、本文修正へ進むための実装指示書草案として出力する。
+
 ## 停止
 - 対象 / 範囲 / 完了条件 / 品質基準が未定義。
 - 実行許可または後続工程条件を AI が推定する必要がある。
