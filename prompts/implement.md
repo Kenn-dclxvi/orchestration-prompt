@@ -7,9 +7,14 @@
 - ロールプロンプト / 実装指示書 / 作業単位（`target / scope / done / tests / stop`）
 - `tests` はテストコマンドまたは `なし（根拠）`。
 - 既定テスト定義から展開された `tests` は、明示済みテスト条件として扱う。
+- Plan 成果物を受ける場合は Execution Contract として扱う。Execution Contract は Goal / Scope / Constraints / Completion Criteria / Task Graph / 実行順序 / 並列可能性 / 停止条件 / Replan条件 / テスト要求を含む。
 
 ## ルール
 - 明示された `target / scope / done` だけを扱う。
+- Execution Contract がある場合は、`target / scope / done / tests / stop` と矛盾しない範囲だけ実行入力として扱う。不足・矛盾・未指定の仕様判断があれば停止理由にする。
+- Task Graph / 実行順序 / 並列可能性は、作業順序と依存関係の手がかりとして扱う。並列可能性は物理並列の実行許可ではない。
+- Execution で判断してよい範囲は、実装方法の詳細、ファイル編集順、許可範囲内で実装に直接必要な軽微なリファクタリング、ツール選択に限る。
+- Scope変更、Goal変更、Contract違反、大きな設計変更、新しい依存関係の発見が必要になった場合は、実装せず Replan条件に該当する観測事実として停止理由にする。
 - 指示書外改善、仕様変更、対象外変更、便乗リファクタ、命名変更、移動、削除、構成変更、探索的修正をしない。
 - テスト期待値を都合よく変更しない。
 - テストを通すための改竄（`# noqa`・skip・xfail の追加、失敗パスの mock / stub での握りつぶし、assertion の緩和）をしない。実装でなくテストを緩めて通す経路を取らない。
