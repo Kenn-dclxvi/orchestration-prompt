@@ -26,6 +26,7 @@ docs/
   adoption.md                    # 人間向け: 導入ランブック
   glossary.md                    # 人間向け: 用語集
   orchestration-process.md       # 依存順に整理されたプロセス仕様
+  orchestration-v2.md            # 準備中: Contract / Toolbox による次期設計
   prompt-guide.md
   walkthrough.md                 # 人間向け: 1サイクルの具体例
 templates/
@@ -69,6 +70,7 @@ scripts/
 - `docs/AI 適用ガイド.md` は AI向けの適用手順である。AI にこのプロンプトセットを別リポジトリへ展開させるときに渡す。
 - `docs/adoption.md` は人間向けの導入ランブックである。標準構成、`CLAUDE.md` のシンボリックリンク、適用後検証、`overlays/_template/` の使い方を示す。
 - `docs/glossary.md` は用語集である。手続きの正本を複製せず、用語の意味と出典を集約する。
+- `docs/orchestration-process.md` は v1 の現行安定版の正本である。`docs/orchestration-v2.md` は Contract / Toolbox による準備中の次期設計であり、現行運用ルールではない。
 - `docs/walkthrough.md` は plan→implement→audit→review→完了判定 の1サイクルを具体例で示す読み物である。
 
 ## 使い方
@@ -79,7 +81,7 @@ scripts/
 4. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
 5. `overlays/<name>/files/` がある場合は、対象リポジトリ相対パスとして共通ファイルの後に重ねる。
 6. プロジェクト固有のパス、コマンド、正本文書は、この汎用プロンプトセットではなく、オーバーレイまたは対象リポジトリ側に置く。
-7. `docs/orchestration-process.md` を依存順に整理されたプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。
+7. `docs/orchestration-process.md` を v1 の現行安定版のプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。v2 の準備中設計は `docs/orchestration-v2.md` を参照する。
 
 実装・変更の意図はあるが対象・範囲・完了条件・品質基準・実行許可を推定なしで確定できない依頼では、プランエージェントが非拘束の草案を作る。草案は実行許可ではない。
 
