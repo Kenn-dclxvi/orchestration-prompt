@@ -1,11 +1,11 @@
 # オーケストレーション v2 設計
 
 ## 位置づけ
-この文書は、要求から実装完了までを最短時間で達成するための自律オーケストレーション設計を記述する。
+この文書は、設計履歴/rationale/旧v2検討資料である。現行運用ルールではない。現行正本は `docs/orchestration-process.md` である。
 
-v1 の現行安定版の正本は `docs/orchestration-process.md` である。この文書は現行運用ルールではなく、v2化に向けた準備中の設計である。
+この文書が記述した自律オーケストレーション設計（Execution Lifecycle / Planning Engine / Optimization Principle / Continuous Verification / Goal Complete / Toolbox / Contract 群 / End-to-End Contract Matrix / Quality Gate / Success Criteria など）は、切替により `docs/orchestration-process.md` へ運用構造として採用済みである。以後、運用判断の根拠は `docs/orchestration-process.md` を参照する。この文書は採用に至った設計理由と検討履歴を残すために保持する。
 
-v2 は、v1 の手順を置き換える文書ではない。v1 が定義している承認済み実装指示書、作業単位化、実装、監査、レビュー、停止、完了判定の運用は、v2 が採用されるまで v1 に従う。
+以下の本文は、採用前の設計検討時点の記述である。採用済みの運用ルールとして読まず、設計履歴として扱う。特に §v1からv2への移行段階 と §v1計画フェーズと Preflight Routing Gate の Planning Engine 化実施方針 は、切替方針と矛盾するため各節の冒頭で無効であることを明記している。
 
 ## Mission
 v2 の目的は、AI 駆動開発を「安全に実行するためのルール集」から「要求を満たす実装完了へ最短経路で到達する自律型 Software Architect の行動モデル」へ発展させることである。
@@ -489,6 +489,8 @@ v2 の成功条件は、最小時間で要求を満たし、品質基準を満�
 品質と速度を両立することが、v2 のオーケストレーションの責務である。
 
 ## v1からv2への移行段階
+この節は採用済み（切替）により無効な歴史的記述である。移行は段階移行ではなく切替で実施され、この節の段階0-4・昇格前の確認基準・昇格判断の手順は現行運用ルールではない。当時の確認基準（全受け渡し契約の定義完結 / v1安全性指標の非低下 / 情報分離 / 人間保持判断の境界）は、現行正本 `docs/orchestration-process.md` の各契約節・§Quality Gate・§完了条件・§人間が保持する判断で満たされている。以下は設計検討時点の記述として残す。
+
 v1からv2への移行は、現行安定版を壊さず段階的に行う。
 
 ### 段階0: v1維持
@@ -573,6 +575,8 @@ v2「人間が保持する判断」（L410-423）が v1「親エージェント�
 これらの確認が完了した場合、人間は `docs/orchestration-process.md` への昇格手続きを行う。
 
 ## v1計画フェーズと Preflight Routing Gate の Planning Engine 化実施方針
+この節は採用済み（切替）により無効な歴史的記述である。ここで「次PR」として計画された段階的追加は、切替により全面採用へ超越された。現行運用ルールは現行正本 `docs/orchestration-process.md` の §Planning Engine・§Preflight Routing / Orchestration Cost Gate 要件・§Parent→Plan の受け渡し契約 に統合済みである。以下は設計検討時点の記述として残す。
+
 この方針は、次PRで v1 の Plan 起動前 Preflight と Plan フェーズに v2 Planning Engine の観点を追加するための実施方針である。v2 は v1 を置き換えるものではなく、Preflight と Plan 段階で使う追加観点として扱う。
 
 ### 作成対象

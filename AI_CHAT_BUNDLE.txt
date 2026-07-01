@@ -60,7 +60,7 @@ docs/
   adoption.md                    # 人間向け: 導入ランブック
   glossary.md                    # 人間向け: 用語集
   orchestration-process.md       # 依存順に整理されたプロセス仕様
-  orchestration-v2.md            # 準備中: Contract / Toolbox による次期設計
+  orchestration-v2.md            # 設計履歴/rationale: 採用済み運用構造の設計理由
   prompt-guide.md
   walkthrough.md                 # 人間向け: 1サイクルの具体例
 templates/
@@ -104,7 +104,7 @@ scripts/
 - `docs/AI 適用ガイド.md` は AI向けの適用手順である。AI にこのプロンプトセットを別リポジトリへ展開させるときに渡す。
 - `docs/adoption.md` は人間向けの導入ランブックである。標準構成、`CLAUDE.md` のシンボリックリンク、適用後検証、`overlays/_template/` の使い方を示す。
 - `docs/glossary.md` は用語集である。手続きの正本を複製せず、用語の意味と出典を集約する。
-- `docs/orchestration-process.md` は v1 の現行安定版の正本である。`docs/orchestration-v2.md` は Contract / Toolbox による準備中の次期設計であり、現行運用ルールではない。
+- `docs/orchestration-process.md` は現行運用ルールの正本である。運用構造は Execution Lifecycle / Planning Engine / Contract / Toolbox として整理されている。`docs/orchestration-v2.md` は、その運用構造の設計履歴/rationale であり、現行運用ルールではない。
 - `docs/walkthrough.md` は plan→implement→audit→review→完了判定 の1サイクルを具体例で示す読み物である。
 
 ## 使い方
@@ -115,7 +115,7 @@ scripts/
 4. `AGENTS.md`、`prompts/`、必要なテンプレートを対象リポジトリへコピーまたは適用する。
 5. `overlays/<name>/files/` がある場合は、対象リポジトリ相対パスとして共通ファイルの後に重ねる。
 6. プロジェクト固有のパス、コマンド、正本文書は、この汎用プロンプトセットではなく、オーバーレイまたは対象リポジトリ側に置く。
-7. `docs/orchestration-process.md` を v1 の現行安定版のプロセス仕様、`docs/prompt-guide.md` を設計ガイドとして使う。v2 の準備中設計は `docs/orchestration-v2.md` を参照する。
+7. `docs/orchestration-process.md` を現行運用ルールのプロセス仕様の正本、`docs/prompt-guide.md` を設計ガイドとして使う。採用済み運用構造の設計理由は `docs/orchestration-v2.md` を参照する。
 
 実装・変更の意図はあるが対象・範囲・完了条件・品質基準・実行許可を推定なしで確定できない依頼では、プランエージェントが非拘束の草案を作る。草案は実行許可ではない。
 
@@ -305,6 +305,10 @@ build/
 ## 位置づけ
 この文書は `docs/` 配下に置く。
 
+現行運用ルールの正本は本文書に一本化する。`docs/orchestration-v2.md` は設計履歴/rationale であり、現行運用ルールではない。矛盾がある場合は本文書を優先する。
+
+本文書は、要求から実装完了までを Execution Lifecycle として運用構造化し、v1 で確立した責務分離、情報分離、停止条件、完了判定の意味を保存する。語彙は v2 設計に由来するが、実装、監査、レビュー、停止、完了判定の運用ルールは本文書が正本である。
+
 関連文書:
 
 ```text
@@ -314,6 +318,7 @@ prompts/implement.md
 prompts/audit.md
 prompts/review.md
 docs/prompt-guide.md
+docs/orchestration-v2.md
 ```
 
 役割は以下とする。
@@ -338,8 +343,49 @@ docs/prompt-guide.md
   AGENTS.md とロールプロンプトの考え方を説明するガイド。
 
 docs/orchestration-process.md
-  指示書作成 / 親エージェント / 各SAの運用仕様。
+  指示書作成 / 親エージェント / 各SAの運用仕様の正本。
+
+docs/orchestration-v2.md
+  本文書へ採用された運用構造の設計履歴/rationale。現行運用ルールではない。
 ```
+
+## Execution Lifecycle
+このプロセスの実行ライフサイクルは、Requirement → Goal Definition → Planning → Dependency Planning → Task Graph → Parallel Scheduling → Execution → Continuous Verification → Replan → Goal Complete である。
+
+このライフサイクルは、Goal → Planning → Execution → Verification → Replan → Goal Complete の流れを中心に構成する。各段階は、本文書の運用ルール（作業単位化、実装、監査、レビュー、停止、完了判定）を語彙として整理するものであり、責務分離と情報分離を弱めない。
+
+各段階の責務は次のとおりである。
+
+- Requirement: 要求を受け取り、明示された対象、範囲、制約、完了条件を識別する。
+- Goal Definition: 要求を達成すべきゴールとして定義し、成功条件を明確にする。
+- Planning: ゴール達成に必要なタスク、依存関係、優先順位、実行順序を設計する。
+- Dependency Planning: 各タスクの前提条件、依存先、計画上の並列可能性を解析する。
+- Task Graph: タスクを有向グラフとして表現する。
+- Parallel Scheduling: 依存関係のないタスクを計画上並列可能な作業として識別し、待ち時間を減らす実行順序候補を作る。物理並列の実行許可ではない。
+- Execution: 承認済み範囲に従って実装、修正、確認を行う。
+- Continuous Verification: 各段階で品質条件、制約、成果物、テスト結果を確認する。
+- Replan: 実行と検証で得た観測事実を親エージェントへ返し、作業単位化し直すか Plan へ戻すかの判断材料にする。
+- Goal Complete: 要求を満たし、品質基準を満たした状態を完了として扱う。
+
+## Planning Engine
+Planning Engine は、このプロセスの中心概念である。実装開始前に最適な実行計画を構築し、実行中も観測事実に応じて計画を更新するための機構である。
+
+Planning Engine が扱う計画観点は、Goal Definition、Dependency Planning、Task Graph、Parallel Scheduling、実行順序の決定、Replan条件整理、Quality Gate観点整理、Preflight Routing Gate 後の詳細計画見積もりである。これらは計画上の整理観点であり、実行許可、Scope、Done、テスト条件、SA起動権限を生成しない。
+
+Planning Engine は、単純な ToDo を作るだけではない。ゴール達成までの探索空間を整理し、品質を落とさずに最終的な完了時間を短くする経路を選択する。ただし境界が不足している場合、境界を補完せず不足項目を返す。プランSAが扱う計画観点と禁止事項は §Parent→Plan の受け渡し契約 に従う。
+
+## Optimization Principle
+Optimization Principle は、Planning Engine が計画を最適化するときの優先順位である。
+
+優先順位は次の順序とする。
+
+1. Goal 達成
+2. 品質維持
+3. 実装時間短縮
+4. 手戻り最小化
+5. コンテキスト切替最小化
+
+目先の作業時間が短い経路を選ばない。品質低下、手戻り、再確認、依存待ちを含めた最終的な完了時間が最小となる経路を選択する。この優先順位は、情報分離、レビュー必須ゲート、停止条件を弱める根拠にしない。品質維持と情報分離は実装時間短縮に優先する。
 
 ## 基本方針
 AI 駆動開発プロセスは、以下の責務分離を前提にする。
@@ -440,7 +486,7 @@ Parent→Plan Contract は、最低限以下を含む。
 - SSOT: 正本として扱う文書、優先順位、参照してよい範囲。
 - Preflight Routing Gate 結果: 親が Plan SA 起動前に行った粗い分類、Plan SA 起動価値、軽量ルート / フルルート候補、未指定項目。
 
-プランSAが扱ってよい計画観点は以下に限る。これらは Plan 段階の整理観点であり、v1 の実装、監査、レビュー、停止、完了判定の現行運用ルールを変更しない。
+プランSAが扱ってよい計画観点は以下に限る。これらは Plan 段階の整理観点であり、実装、監査、レビュー、停止、完了判定の運用ルールを変更しない。
 
 - Goal Definition: 明示された目的、対象、範囲、完了条件、品質基準の整理。
 - Dependency Planning: 作業間の前提条件、依存先、独立性の整理。
@@ -474,7 +520,7 @@ Plan SA
   └─ Detailed Planning / Detailed Estimate
 ```
 
-この要件は実行許可、Scope、Done、テスト条件、SA起動権限を生成しない。v1 の実装、監査、レビュー、停止、完了判定の現行運用ルールを置き換えず、親の直接実装を許す抜け道にしない。
+この要件は実行許可、Scope、Done、テスト条件、SA起動権限を生成しない。実装、監査、レビュー、停止、完了判定の運用ルールを置き換えず、親の直接実装を許す抜け道にしない。
 
 全体構造は次のとおりである。
 
@@ -521,6 +567,8 @@ Review SA
 - フルルートが必要か。
 
 軽量ルートまたはフルルートの判定は、§SA利用ケース、§作業単位化判定フロー、§レビューSA入力、§親エージェントの制約内でだけ扱う。軽量ルートは、親の直接実装、監査省略、レビュー必須ゲートの省略、情報分離の緩和を意味しない。
+
+軽量ルート型とフルルート型の選択は、作業規模だけで決めない。作業規模、Isolation Gate（情報分離価値）、Risky 有無を併せて判断する。ルート型は固定割り当てではなく、Orchestration Cost Gate は Isolation Gate の後に評価するという原則を上書きしない。軽量ルート型でもフルルート型でも、監査SAへ実装経緯・事前評価を渡さず、レビューSAへ監査結果本文・監査SAの指摘内容を渡さず、Audit Contract / レビューSA入力の情報遮断を維持する。
 
 Plan SA は、起動後に Detailed Planning / Detailed Estimate として、より詳細な計画見積もりを行う。Plan SA が見るものは次に限る。
 
@@ -570,7 +618,7 @@ Plan SA が起動後に出力する後続SA構成案は次を含めてよい。
 
 - Implement SA省略候補: 実装・修正・ファイル変更が不要な純粋な質問、明示対象だけの非破壊レビュー、または作業単位化前の草案作成だけで終わる場合。実装・変更が必要な場合、親が直接実装してはならない。
 - Audit SA軽量化候補: 明示境界が狭く、成果物と契約の照合観点を絞れる場合。軽量化は監査観点と関連仕様の最小化に限り、Audit Contract と必要な関連仕様だけを渡す情報遮断は維持する。
-- Review SA省略候補: PRレビュー相当の品質確認対象となる差分が存在しない場合、または正本で省略可が明示された場合。現行 v1 では、実装SAの成果物を監査SAへ渡し、監査SAの停止指摘0件後に進む場合、レビューSAは必ず起動する。
+- Review SA省略候補: PRレビュー相当の品質確認対象となる差分が存在しない場合、または正本で省略可が明示された場合。実装SAの成果物を監査SAへ渡し、監査SAの停止指摘0件後に進む場合、レビューSAは必ず起動する。
 - 並列SA候補: 変更を伴う並列は §パラレル起動の独立性基準を満たす場合だけ候補にし、非破壊検証の並列はケースG / H の条件に従う。並列化はコンテキスト複製量と結果統合コストを明示する。
 
 Plan SA は、Detailed Planning / Detailed Estimate を出す場合、次を明示する。
@@ -590,8 +638,18 @@ Preflight Estimate / Routing Gate と Detailed Planning / Detailed Estimate は�
 - Small 判定だけを理由に監査、レビュー、情報分離を外す。
 - Small でも Risky なのに軽量ルートへ流す。
 - 親の直接実装を許す。
-- Review 省略条件を現行 v1 のレビュー必須ルールより広く扱う。
+- Review 省略条件をレビュー必須ルールより広く扱う。
 - 並列化を理由に対象、範囲、完了条件、品質基準、実行許可を曖昧にする。
+
+## Dependency Planning
+Dependency Planning は、作業を有向グラフとして扱う計画観点である。各タスクは前提条件、完了条件、依存先、計画上の並列可能性を保持する。
+
+依存関係があるタスクは無理に並列化しない。依存関係がないタスクは、待ち時間、確認回数、手戻りを減らすために計画上の並列可能性として扱う。Dependency Planning は、不要な確認、無駄な待ち時間、実装後の手戻りを最小化するために使う。物理並列の実行許可は §パラレル起動の独立性基準 に従う。
+
+## Parallel Scheduling
+Parallel Scheduling は、独立したタスクを物理的に同時実行する標準動作ではない。依存関係上独立して扱える作業を計画上の並列可能性として識別することを指す。
+
+依存関係がない作業は、速度向上のために、同時実行ではなく実行順序候補と分割候補の観点で扱う。Parallel Scheduling は、対象・範囲・完了条件・品質基準・実行許可を満たす範囲で計画観点として扱う。並列可能性の整理によって境界が不明確になる場合、AI は並列可能扱いせず、必要な境界を返す。変更を伴う並列の実行許可は §パラレル起動の独立性基準 に従う。
 
 ## Plan→Execution の受け渡し契約
 Plan 成果物を実装SAの入力に含める場合、親エージェントは Execution Contract として渡す。Execution Contract は実行許可を生成しない。実行は、承認済み実装指示書または作業単位化条件に基づき、§作業単位化判定フローで `target / scope / done / tests / stop` に整理できる場合だけ行う。
@@ -609,9 +667,9 @@ Execution Contract は、Plan 成果物を Execution がそのまま実行入力
 - Replan条件: Plan へ戻す観測事実。
 - テスト要求: 展開済みテスト条件または `なし（根拠）`。
 
-Goal Definition / Dependency Planning / Task Graph / Parallel Scheduling / Replan条件 / Quality Gate は、Plan 成果物を整理するための計画観点である。これらは v1 の実装、監査、レビュー、停止、完了判定の手順を変更しない。
+Goal Definition / Dependency Planning / Task Graph / Parallel Scheduling / Replan条件 / Quality Gate は、Plan 成果物を整理するための計画観点である。これらは実装、監査、レビュー、停止、完了判定の手順を変更しない。
 
-Execution Contract の Goal / Scope / Constraints / Completion Criteria は、v1 の対象・範囲・完了条件・品質基準・実行許可と矛盾してはならない。Quality Gate は、Execution Contract が v1 の境界項目と矛盾しないことを確認対象に含める。
+Execution Contract の Goal / Scope / Constraints / Completion Criteria は、対象・範囲・完了条件・品質基準・実行許可と矛盾してはならない。Quality Gate は、Execution Contract が境界項目と矛盾しないことを確認対象に含める。
 
 Execution が判断してよい範囲は、Execution Contract と `target / scope / done / tests / stop` の範囲内で完結する以下に限る。
 
@@ -620,13 +678,24 @@ Execution が判断してよい範囲は、Execution Contract と `target / scop
 - 許可範囲内で実装に直接必要な軽微なリファクタリング
 - ツール選択
 
-Execution は、以下を観測した場合、自力で Contract を更新せず、Plan へ戻すべき観測事実として停止理由に含める。
+Execution は、以下を観測した場合、自力で Contract を更新せず、Plan へ戻すべき観測事実として停止理由に含める（§Replan の受け渡し契約）。
 
 - Scope変更が必要である。
 - Goal変更が必要である。
 - Contract違反がある。
 - 大きな設計変更が必要である。
 - 新しい依存関係を発見した。
+
+## Replan の受け渡し契約
+Replan の受け渡し契約は、Execution / Audit / Review が実行中または照合中に得た観測事実を Plan へ戻すための契約である。ライフサイクル上の位置づけは §Execution Lifecycle の Replan 段階に従う。
+
+Execution は、Scope変更・Goal変更・Contract違反・大きな設計変更・新しい依存関係の発見を観測した場合、自力で Contract を更新せず、Plan へ戻すべき観測事実として停止理由に含める。Scope変更が必要か、Goal変更が必要かは、Execution が観測事実として返すだけである。Execution / Audit / Review は再計画の判断を下さない。作業単位化し直すか、Plan へ戻すかの判断は親エージェントが保持する。
+
+Replan条件に該当する観測事実は、監査SAが再計画するための入力ではない。監査SAは、その観測事実が Execution Contract、`target / scope / done / tests / stop`、差分、テスト結果、停止理由と矛盾していないかだけを照合する。監査SAとレビューSAは自己再計画しない。この情報遮断は Orchestration Cost Gate より優先される。
+
+停止指摘または重大指摘が承認済み範囲内で最小修正可能なら、親エージェントは作業単位化し直して実装SAへ渡す。自動修正の回数制御は §自動修正ループ に従い、Replan の受け渡し契約は回数制御の再定義、拡張、条件追加を含めない。
+
+Replan へ戻す観測事実は、Goal 達成までの計画更新に必要な入力である。新しい情報、エラー、テスト結果、監査結果、レビュー結果、依存関係の変化を含む。
 
 ## Execution→Audit の受け渡し契約
 実装SAの成果物を監査SAへ渡す場合、親エージェントは Audit Contract として渡す。Audit Contract は実行許可を生成せず、監査SAが計画や実装を再設計・改善するための入力ではない。監査SAは、Audit Contract と成果物が一致しているかだけを非破壊で照合する。
@@ -736,6 +805,18 @@ SA起動時は、必要な情報を起動メッセージに含める。
 
 レビューSAは、テストの実質性と周辺影響を確認する。assertion不在、常時pass、主要分岐未検証、過剰mock、失敗パスの握りつぶしはテスト妥当性リスクとして扱う。差分だけで影響判断できない場合は、変更関数・API・設定キーなどの呼び出し元 / 参照元を必要最小限で確認する。
 
+## Continuous Verification
+Continuous Verification は、品質確認を終端処理ではなくライフサイクル全体に組み込む仕組みである。速度を下げるためではなく、後戻りを減らして最終的な完了時間を短くするために使う。
+
+Verification は次の段階で行う。
+
+- Planning: 計画が Goal、対象・範囲・完了条件・品質基準・実行許可、制約と矛盾していないことを確認する（§Parent→Plan の受け渡し契約・§Plan→Execution の受け渡し契約の Quality Gate観点）。
+- Execution: 作業が対象と範囲から逸脱していないことを確認する（§各工程の確認範囲）。
+- Verification: 成果物、差分、テスト結果、仕様照合を確認する（§Execution→Audit の受け渡し契約・§レビューSA入力・§各工程の確認範囲）。
+- Replan: 計画更新後も品質基準と制約を満たしていることを確認する（§Replan の受け渡し契約）。
+
+Continuous Verification は、監査SAとレビューSAの情報分離、指摘分類、レビュー必須ゲートを弱めない。契約準拠の判定は監査SA、PRレビュー相当の品質確認はレビューSAが担い、親エージェントが関所として証拠を保持する。
+
 ## 指摘分類
 監査SAは、停止指摘 / 任意指摘 / 範囲外指摘を使う。
 
@@ -830,6 +911,71 @@ SA起動時は、必要な情報を起動メッセージに含める。
 - 条件付き事前承認の条件充足を推定で判断する必要がある。
 - 条件付き事前承認テンプレートまたは既定テスト定義を一意に照合できない。
 
+## Toolbox
+Toolbox は、Planning Engine が選択できる手段の集合である。実行主体ではない。Planning Engine が、対象・範囲・完了条件・品質基準・実行許可、制約、Quality Gate、依存関係、最終的な完了時間を踏まえて、最適なツール、最適な実行方法を選択する。
+
+Toolbox は次の種類を持つ。
+
+- 読取: 対象ファイル、差分、仕様、ログ、テスト出力の確認
+- 編集: 承認済み範囲への変更
+- 検証: 明示されたテスト、静的確認、差分照合、仕様照合
+- 監査: Audit Contract と成果物の非破壊照合
+- レビュー: 品質、周辺影響、テスト妥当性の非破壊確認
+- 報告: 実施内容、変更ファイル、確認結果、停止理由の返却
+
+Toolbox の利用は、権限ではなく条件付き能力である。道具が利用可能でも、承認済み範囲・実行許可が許さない操作は行わない。親の直接実装禁止、情報分離、除外操作（`commit` / `push` / `deploy` / 外部送信）は Toolbox の利用可否より優先される。
+
+## Quality Gate
+Quality Gate は、Planning / Execution / Verification / Replan の各段階で継続的に品質を確認する仕組みである。終端処理だけではない。計画が正しくても実行が逸脱する場合があり、実行が正しくても新しい情報によって計画更新が必要になる場合がある。
+
+Quality Gate は次を確認する。
+
+- Goal と対象・範囲・完了条件・品質基準・実行許可から逸脱していない。
+- 制約に抵触していない。
+- 明示されたテスト条件が扱われている。
+- テスト期待値、停止条件、禁止操作が変更されていない。
+- SSOT と矛盾していない。
+- 成果物と確認結果で完了扱いを支えられる。
+- 監査SAとレビューSAの情報分離が維持されている。
+- 監査SAの停止指摘0件後にレビューSAが起動されている。
+
+Quality Gate を満たせない場合、作業は Goal Complete として扱わない。
+
+## Goal Complete
+Goal Complete は、要求を満たし、品質基準を満たした状態である。単に実装が終わった状態ではない。成果物、確認結果、テスト結果、制約照合によって、要求が満たされたことを説明できる状態である。
+
+Goal Complete は §完了条件 の成立を前提とする。実装SAの実装とテスト結果、監査SAの監査結果、レビューSAのレビュー結果が揃い、停止指摘0件かつ重大指摘0件の場合のみ成立する。Goal Complete に到達できない場合、AI は未達の条件、停止理由、次に必要な判断を返す。
+
+## Contract
+Contract は、Planning Engine が最適化を行う際の制約条件である。計画を固定するものではない。Contract はゴール、制約、完了条件を保持し、Planning Engine はその範囲内でタスク構成、実行順序、計画上の並列可能性を決定する。
+
+Contract は次を保持する。
+
+- `goal`: 達成すべき結果
+- `scope`: 対象と範囲
+- `constraints`: 禁止、停止、除外操作
+- `done`: 完了条件
+- `quality_criteria`: 品質基準
+
+Contract に未定義の境界を AI が補完してはならない。Contract が不足している場合、AI は不足項目を返す。個別の受け渡し契約（Parent→Plan / Plan→Execution / Execution→Audit / Audit→Review / Replan）の構成項目と情報分離は、各契約節を正本とする。
+
+## Constraints
+Constraints は、Planning Engine と Execution が越えてはならない境界である。個別の禁止・停止規則は各節（§停止条件・§自動修正ループ・§各工程の確認範囲・各受け渡し契約）を正本とし、本節はまとめである。
+
+Constraints は次を含む。
+
+- AI は対象、範囲、完了条件、品質基準、実行許可を補完しない。
+- SSOT の採用・変更は人間が保持する判断である。AI が推定で採用・変更しない。
+- `commit` / `push` / `deploy` / 外部送信は、別途明示許可がある場合だけ行う。
+- テスト期待値の変更、skip、xfail、assertion 緩和、失敗パスの握りつぶしを完了の近道にしない。監査SAはこれをテスト改竄（reward hacking）として完了偽装と並ぶ一次照合で停止指摘にする。
+- 便乗リファクタ、命名変更、移動、削除、構成変更を承認済み範囲外で行わない。
+- 原因不明の探索的修正を行わない。
+- 情報遮断は Orchestration Cost Gate より優先される。Audit / Review の情報分離がコスト削減、並列化、軽量化より優先される。
+- 親エージェントは実装・修正・テスト・監査・PRレビュー相当の品質確認・指示書作成を直接行わない。Preflight / 軽量ルートを抜け道にしない。
+- 草案・Plan成果物・条件付き事前承認テンプレートID・既定テストID は実行許可を生成しない。
+
+Constraints に抵触する場合、AI は作業を停止し、抵触した境界を返す。
+
 ## PR作成
 親エージェントが PR を作成する場合は、以下に従う。
 
@@ -844,6 +990,74 @@ SA起動時は、必要な情報を起動メッセージに含める。
 - 結論先出しで返す。
 - 実装・テスト・監査・レビュー結果、停止指摘 / 重大指摘の有無、自動再修正回数、停止理由を返す。
 - 自動修正ループを打ち切る場合は §自動修正ループ の様式（ボトルネック / 反復指摘 / 次に人間が判断すべき点・3行以内）で返す。
+
+## AIへ委譲する判断
+AIへ委譲する判断は、Contract の範囲内で完結する仮決定に限る。
+
+AI は次を判断してよい。
+
+- Goal 達成に必要なタスク分解
+- タスク間の依存関係
+- 計画上並列可能な作業
+- 実行順序と優先順位
+- Toolbox から使う道具
+- 実行中の計画更新
+- 明示されたテスト条件に基づく実行と結果整理
+- 差分、テスト結果、仕様の照合
+- Constraints に抵触した場合の停止
+- 不足している Contract 項目の列挙
+
+AI は、委譲された判断を Contract の拡張に変換してはならない。Execution 単体へ委譲する判断は、実装方法の詳細、ファイル編集順、Contract 範囲内で実装に直接必要な軽微なリファクタリング、Toolbox 選択に限る。Goal変更、Scope変更、Contract違反、大きな設計変更、新しい依存関係の発見は、Replan へ戻す観測事実として扱う。
+
+## 人間が保持する判断
+人間が保持する判断は、作業境界とリスク受容に関わる決定である。
+
+人間は次を保持する。
+
+- 目的、対象、範囲、完了条件、品質基準、実行許可の確定
+- SSOT の採用、変更、優先順位の決定
+- Contract 外の仕様変更、構成変更、対象拡張の判断
+- `commit` / `push` / `deploy` / 外部送信の許可
+- テスト条件が不足している場合の追加定義
+- 停止後に作業を続けるかどうかの判断
+- 作業単位化し直すか、Plan へ戻すかの判断
+
+AI は、人間が保持する判断を推定で代替しない。
+
+## End-to-End Contract Matrix
+この Matrix は、Parent → Plan → Execution → Audit → Review → Parent および Any → Replan の受け渡し地点における契約要素を、実装の流れに沿って1枚で参照できるように集約したものである。各セルは対応する契約節（§Parent→Plan の受け渡し契約 / §Plan→Execution の受け渡し契約 / §Execution→Audit の受け渡し契約 / §レビューSA入力 / §Replan の受け渡し契約 / §各工程の確認範囲 / §親エージェント）に完全に従う。Matrix は要約であり、詳細およびルールの正本は各契約節である。情報分離（Execution→Audit で実装経緯・事前評価を除外、Audit→Review で監査結果本文・指摘内容・判断理由・個別評価を除外）は情報遮断価値の核であり、この Matrix でも厳格に維持される。レビュー必須ゲート・停止条件・完了判定の効力は Matrix の追加によって弱められない。
+
+| 受け渡し地点 | 入力 | 出力 | 渡してよい情報 | 渡してはいけない情報 | 生成してはいけないもの | 停止条件 |
+|---|---|---|---|---|---|---|
+| **Parent→Plan** | Parent→Plan Contract（ユーザー要求・明示された対象・明示された範囲・制約・実行許可の有無・既定テスト定義・条件付き事前承認・SSOT・Preflight Routing Gate 結果。詳細は §Parent→Plan の受け渡し契約） | 実装指示書草案 / 不足項目 | 明示入力と正本参照（SSOT・参照可能範囲・参照条件） | 推定による境界項目の補完・Contract 外の対象追加（§Parent→Plan の受け渡し契約: 実行許可を生成せず未定義の境界項目を補完しない） | 実行許可・未定義の境界項目の補完（§Parent→Plan の受け渡し契約） | 対象・範囲・完了条件・品質基準・実行許可のいずれかが未定義。補完に推定が必要。参照文書から未指定の境界を補完する必要がある。 |
+| **Plan→Execution** | Execution Contract（Goal / Scope / Constraints / Completion Criteria / Task Graph / 実行順序 / 並列可能性 / 停止条件 / Replan条件 / テスト要求。詳細は §Plan→Execution の受け渡し契約） | 実装成果物・差分・テスト結果・停止理由 | 実装指示書・関連仕様・テスト条件（Execution Contract と `target / scope / done / tests / stop` の範囲内） | Contract に未定義の境界を補完する内容（§Constraints: AI は対象・範囲・完了条件・品質基準・実行許可を補完しない） | 自力での Contract 更新・Scope 外判断（§Plan→Execution の受け渡し契約: Goal変更・Scope変更・Contract違反・大きな設計変更・新しい依存関係は補完せず Replan へ戻す観測事実として扱う） | Scope変更・Goal変更・Contract違反・大きな設計変更・新しい依存関係の発見を要する場合は実装せず Replan条件に該当する観測事実として停止理由にする（§Plan→Execution の受け渡し契約）。 |
+| **Execution→Audit** | Audit Contract（実装指示書・Execution Contract・`target / scope / done / tests / stop`・変更ファイル・差分・テスト結果・停止理由・Replan条件に該当する観測事実・監査観点。詳細は §Execution→Audit の受け渡し契約） | 停止指摘・任意指摘・範囲外指摘（§指摘分類） | 必要な関連仕様（Audit Contract と成果物の一致確認に必要な補助入力。§Execution→Audit の受け渡し契約） | 実装経緯・事前評価（§親エージェント: 監査SAへ実装経緯・事前評価を渡さない。§Execution→Audit の受け渡し契約に準拠） | 再設計・実装改善・品質改善レビュー・計画更新（§Execution→Audit の受け渡し契約: Audit の責務に含めない） | 実装経緯・事前評価が渡される場合。関連仕様が明示なく同期確認が必要な場合。Audit Contract と成果物が一致しない場合。 |
+| **Audit→Review** | レビューSA入力（`review.md` の本文または要約・承認済み実装指示書・差分・テスト結果・必要な関連仕様・レビュー観点・監査SAの停止指摘0件という起動ゲート事実。詳細は §レビューSA入力） | 重大指摘・改善指摘・補足・範囲外指摘（§指摘分類） | 必要な関連仕様（AI制御文書が変更対象の場合は変更後の当該文書全体。§レビューSA入力） | 実装経緯・事前評価・監査結果本文・監査SAの指摘内容・判断理由・個別評価（§レビューSA入力: レビューSA入力に含めない） | 契約準拠の再判定・監査指摘分類の変更・修正指示（Review は非破壊の PRレビュー相当品質確認のみ。§各工程の確認範囲） | 監査結果本文・監査SAの指摘内容・判断理由・個別評価が渡される場合。監査SAの停止指摘0件という起動ゲート事実が確認できない場合。 |
+| **Review→Parent** | レビューSA成果物（重大指摘・改善指摘・補足・範囲外指摘の4分類。§指摘分類） | 完了判定・自動修正可否判断・マージ可否判定の入力（§親エージェント） | 監査SAの停止指摘0件という起動ゲート事実（§親エージェント） | 監査結果本文・監査SAの指摘内容・判断理由・個別評価（§親エージェント: レビューSA入力・レビューSAの分類へ移さない） | 契約準拠の再判定・新規ルールの追加（判定・関所管理は親エージェントが保持。§親エージェント） | 重大指摘が存在し承認済み範囲内で最小修正できない場合は停止（§自動修正ループ）。改善指摘・補足・範囲外指摘は自動修正対象にしない（§指摘分類）。 |
+| **Any→Replan** | Execution / Audit / Review から Plan へ戻される観測事実（§Replan の受け渡し契約） | 再計画入力・Plan 更新トリガー（新しい情報・エラー・テスト結果・監査結果・レビュー結果・依存関係の変化。§Replan の受け渡し契約） | Scope変更・Goal変更・Contract違反・大きな設計変更・新しい依存関係の発見という観測事実そのもの（§Replan の受け渡し契約） | Plan へ戻す前に自力で更新した Contract 修正案・再計画の判断そのもの（§Replan の受け渡し契約: Execution / Audit / Review は再計画の判断を下さない） | 再計画の判断・計画修正提案（作業単位化し直すか Plan へ戻すかの判断は親エージェントが保持。§Replan の受け渡し契約） | 観測事実が Scope変更・Goal変更・Contract違反・大きな設計変更・新しい依存関係のいずれにも該当しない場合。必要性を推定で判断する場合。 |
+
+## SSOT
+SSOT は、判断の根拠として優先する正本である。
+
+- 現行運用ルールの SSOT は本文書 `docs/orchestration-process.md` である。
+- 設計理由と書き味の SSOT は `docs/prompt-guide.md` である。
+- 本文書へ採用された運用構造の設計履歴/rationale は `docs/orchestration-v2.md` である。現行運用ルールではない。
+
+矛盾がある場合、現行運用では本文書を優先する。SSOT の採用、変更、優先順位の決定は人間が保持する判断である。
+
+## Success Criteria
+このプロセスの成功条件は、単に実装が完了したことではない。最小時間で要求を満たし、品質基準を満たした状態に到達することである。
+
+成功には次を含む。
+
+- Goal が達成されている。
+- 対象・範囲・完了条件・品質基準・実行許可、制約から逸脱していない。
+- Quality Gate を満たしている。
+- 監査SAとレビューSAの情報分離、レビュー必須ゲート、停止条件、完了判定が維持されている。
+- 依存待ち、不要確認、手戻り、コンテキスト切替が最小化されている。
+- 成果物と確認結果によって完了を説明できる。
+
+品質と速度を両立することが、このオーケストレーションの責務である。品質維持と情報分離は速度に優先する。
 
 ## 完了条件
 このプロセス仕様は、本文ルールの再掲による自己検査であり、新規ルールを足さない。以下を各節の成立条件への参照として満たすとき有効である。
@@ -862,9 +1076,12 @@ SA起動時は、必要な情報を起動メッセージに含める。
 - プランSAを起動する場合、Parent→Plan Contract が明示入力と正本参照だけを渡し、Plan 段階の計画観点と禁止事項を分離している（§Parent→Plan の受け渡し契約）。
 - Preflight Routing / Orchestration Cost Gate を扱う場合、親の Preflight Estimate / Routing Gate と Plan SA の Detailed Planning / Detailed Estimate が分離され、親が Plan SA 起動前の粗い起動判断だけを行い、Plan SA が起動後の詳細計画見積もりだけを行う（§Preflight Routing / Orchestration Cost Gate 要件・§親エージェント）。
 - Isolation Gate が Orchestration Cost Gate より先に評価され、Audit / Review の情報分離がコスト削減より優先される（§Preflight Routing / Orchestration Cost Gate 要件）。
-- Plan 成果物を実装SAへ渡す場合、Execution Contract と `target / scope / done / tests / stop` が同じ境界を示し、Execution が判断してよい範囲と Plan へ戻す条件が分離されている（§Plan→Execution の受け渡し契約）。
+- Plan 成果物を実装SAへ渡す場合、Execution Contract と `target / scope / done / tests / stop` が同じ境界を示し、Execution が判断してよい範囲と Plan へ戻す条件が分離されている（§Plan→Execution の受け渡し契約・§Replan の受け渡し契約）。
 - コード変更を含む作業単位ではテストコマンド必須である（§既定テスト定義）。
 - 停止条件に該当した場合は停止する（§停止条件・§自動修正ループ）。
+- 完了判定は、実装SAの実装とテスト結果、監査SAの監査結果、レビューSAのレビュー結果が揃い、停止指摘0件かつ重大指摘0件の場合のみ成立し、Goal Complete をスキップしない（§Goal Complete・§Quality Gate）。
+- 計画最適化の優先順位が Goal 達成、品質維持、実装時間短縮、手戻り最小化、コンテキスト切替最小化の順であり、品質維持と情報分離が実装時間短縮に優先する（§Optimization Principle）。
+- プロセスの成功が、最小時間で要求を満たし、品質基準を満たした状態への到達であり、情報分離、レビュー必須ゲート、停止条件、完了判定の維持を含む（§Success Criteria）。
 
 ## 制約
 このプロセスは、プロンプト駆動の責務分離である。
@@ -884,11 +1101,11 @@ SA起動時は、必要な情報を起動メッセージに含める。
 # オーケストレーション v2 設計
 
 ## 位置づけ
-この文書は、要求から実装完了までを最短時間で達成するための自律オーケストレーション設計を記述する。
+この文書は、設計履歴/rationale/旧v2検討資料である。現行運用ルールではない。現行正本は `docs/orchestration-process.md` である。
 
-v1 の現行安定版の正本は `docs/orchestration-process.md` である。この文書は現行運用ルールではなく、v2化に向けた準備中の設計である。
+この文書が記述した自律オーケストレーション設計（Execution Lifecycle / Planning Engine / Optimization Principle / Continuous Verification / Goal Complete / Toolbox / Contract 群 / End-to-End Contract Matrix / Quality Gate / Success Criteria など）は、切替により `docs/orchestration-process.md` へ運用構造として採用済みである。以後、運用判断の根拠は `docs/orchestration-process.md` を参照する。この文書は採用に至った設計理由と検討履歴を残すために保持する。
 
-v2 は、v1 の手順を置き換える文書ではない。v1 が定義している承認済み実装指示書、作業単位化、実装、監査、レビュー、停止、完了判定の運用は、v2 が採用されるまで v1 に従う。
+以下の本文は、採用前の設計検討時点の記述である。採用済みの運用ルールとして読まず、設計履歴として扱う。特に §v1からv2への移行段階 と §v1計画フェーズと Preflight Routing Gate の Planning Engine 化実施方針 は、切替方針と矛盾するため各節の冒頭で無効であることを明記している。
 
 ## Mission
 v2 の目的は、AI 駆動開発を「安全に実行するためのルール集」から「要求を満たす実装完了へ最短経路で到達する自律型 Software Architect の行動モデル」へ発展させることである。
@@ -1372,6 +1589,8 @@ v2 の成功条件は、最小時間で要求を満たし、品質基準を満�
 品質と速度を両立することが、v2 のオーケストレーションの責務である。
 
 ## v1からv2への移行段階
+この節は採用済み（切替）により無効な歴史的記述である。移行は段階移行ではなく切替で実施され、この節の段階0-4・昇格前の確認基準・昇格判断の手順は現行運用ルールではない。当時の確認基準（全受け渡し契約の定義完結 / v1安全性指標の非低下 / 情報分離 / 人間保持判断の境界）は、現行正本 `docs/orchestration-process.md` の各契約節・§Quality Gate・§完了条件・§人間が保持する判断で満たされている。以下は設計検討時点の記述として残す。
+
 v1からv2への移行は、現行安定版を壊さず段階的に行う。
 
 ### 段階0: v1維持
@@ -1456,6 +1675,8 @@ v2「人間が保持する判断」（L410-423）が v1「親エージェント�
 これらの確認が完了した場合、人間は `docs/orchestration-process.md` への昇格手続きを行う。
 
 ## v1計画フェーズと Preflight Routing Gate の Planning Engine 化実施方針
+この節は採用済み（切替）により無効な歴史的記述である。ここで「次PR」として計画された段階的追加は、切替により全面採用へ超越された。現行運用ルールは現行正本 `docs/orchestration-process.md` の §Planning Engine・§Preflight Routing / Orchestration Cost Gate 要件・§Parent→Plan の受け渡し契約 に統合済みである。以下は設計検討時点の記述として残す。
+
 この方針は、次PRで v1 の Plan 起動前 Preflight と Plan フェーズに v2 Planning Engine の観点を追加するための実施方針である。v2 は v1 を置き換えるものではなく、Preflight と Plan 段階で使う追加観点として扱う。
 
 ### 作成対象
@@ -1776,11 +1997,11 @@ AI 駆動開発では、次の順序を守る。
 - Replan条件整理: 後続工程で Plan へ戻すべき観測事実の整理。
 - Quality Gate観点整理: 草案が明示境界、正本、テスト条件と矛盾しないかの観点整理。
 - Detailed Planning / Detailed Estimate: Goal Definition / Dependency Planning / Task Graph 草案 / Parallel Scheduling 草案 / Replan条件 / Quality Gate観点 / 後続SA構成案 / テスト要求の整理。
-- これらは Plan 段階の整理観点であり、v1 の実装、監査、レビュー、停止、完了判定の現行運用ルールを変更しない。
+- これらは Plan 段階の整理観点であり、実装、監査、レビュー、停止、完了判定の現行運用ルールを変更しない。
 
 ## 指示書草案に含める情報
 - 目的 / 前提 / 対象 / 範囲 / 非対象 / 完了条件 / テスト条件 / 停止条件
-- Goal Definition / Dependency Planning / Task Graph 草案 / Parallel Scheduling 草案 / Replan条件整理 / Quality Gate観点整理を扱う場合は、詳細設計ではなく最小限の計画観点として含める。Parallel Scheduling は物理並列ではなく計画上の独立性として扱い、実装 / 監査 / レビュー / 停止 / 完了判定は v1 準拠のままとする。
+- Goal Definition / Dependency Planning / Task Graph 草案 / Parallel Scheduling 草案 / Replan条件整理 / Quality Gate観点整理を扱う場合は、詳細設計ではなく最小限の計画観点として含める。Parallel Scheduling は物理並列ではなく計画上の独立性として扱い、実装 / 監査 / レビュー / 停止 / 完了判定は現行運用ルール準拠のままとする。
 - Preflight Routing / Orchestration Cost Gate を扱う場合は、Plan SA 起動後の詳細見積もりとして、作業規模分類（Small / Medium / Large / Risky）、トークン効率予測（入力トークン / 出力トークン / SA起動数 / コンテキスト複製量 / 並列化オーバーヘッド / 再修正確率）、分離価値評価（Plan の構造化価値 / Audit の情報遮断価値 / Review の第三者視点価値）、後続SA構成案（Implement省略候補 / Audit軽量化候補 / Review省略候補 / 並列SA候補）、禁止事項、Isolation Gate と Orchestration Cost Gate の順序を含める。
 - 該当する条件付き事前承認テンプレートID / 条件付き事前承認テンプレートの展開済み条件 / 既定テストID / 既定テスト定義の展開済み条件 / 展開済みテスト条件 / 照合根拠
 - 実装工程: `prompts/implement.md`、`target / scope / done / tests / stop`、実装指示
@@ -1799,23 +2020,10 @@ AI 駆動開発では、次の順序を守る。
 - Small でも Risky なら、情報分離を維持する前提で整理する。
 - Risky 分類を、正本が定める多視点並列検証などの起動条件拡張として扱わない。
 - Audit SA軽量化は監査観点と関連仕様の最小化として扱い、Audit Contract と必要な関連仕様だけを渡す情報遮断は維持する。
-- Review SA省略候補は、PRレビュー相当の品質確認対象となる差分がない場合、または正本で省略可が明示された場合だけ扱う。v1 で監査SA通過後にレビューSAが必須の経路では省略候補にしない。
+- Review SA省略候補は、PRレビュー相当の品質確認対象となる差分がない場合、または正本で省略可が明示された場合だけ扱う。監査SA通過後にレビューSAが必須の経路では省略候補にしない。
 - コスト削減を理由に、監査SAへ実装経緯・事前評価を渡す案、レビューSAへ監査結果本文・監査SAの指摘内容・判断理由・個別評価を渡す案を出さない。
 - 親が直接実装する案を出さない。
 - 後続SA構成案は実行許可、Scope、Done、テスト条件、SA起動権限を生成しない。
-
-## v1計画フェーズと Preflight Routing Gate の v2 Planning Engine 化プラン
-- このプランは、承認済み方針として `docs/orchestration-v2.md` の「v1計画フェーズと Preflight Routing Gate の Planning Engine 化実施方針」が渡された場合だけ扱う。
-- 対象は Plan 起動前 Preflight と Plan フェーズに限る。v1 の現行運用ルールは維持し、v2 語彙は Preflight と Plan 段階の追加観点としてだけ扱う。
-- Parent の Preflight Estimate / Routing Gate と Plan SA の Detailed Planning / Detailed Estimate を分離する。
-- 追加観点は Goal Definition / Dependency Planning / Task Graph / Parallel Scheduling / Replan条件 / Quality Gate として整理する。
-- Preflight Routing / Orchestration Cost Gate は、Parent の粗い起動判断と Plan SA 起動後の詳細見積もりを分ける判断材料として整理する。
-- Parallel Execution / Parallel Scheduling は、物理的な同時実行ではなく、計画上の並列可能性と依存関係上独立して扱える作業の識別として表現する。
-- 実装、監査、レビュー、停止、完了判定は v1 準拠のままとし、手順変更を含めない。
-- DSL の意味変更、`commit` / `push` / `deploy` / 外部送信などの実行許可変更、Plan 起動前 Preflight と Plan フェーズ以外への v2 語彙の適用を含めない。
-- Parent による実装計画の詳細化、Task Graph 具体化、Done補完、Scope補完、テスト条件推定、実装判断を含めない。
-- 次PRの作業計画には、対象 / 範囲 / 非対象 / 完了条件 / テスト条件 / 停止条件を含める。
-- 次PRの作業計画は、実際の本文修正そのものではなく、本文修正へ進むための実装指示書草案として出力する。
 
 ## 停止
 - 対象 / 範囲 / 完了条件 / 品質基準が未定義。
