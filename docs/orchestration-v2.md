@@ -65,6 +65,7 @@ Planning Engine は次を行う。
 - 優先順位決定
 - 計画上の並列可能性の判断
 - 実行順序の決定
+- Preflight Routing Gate 後の詳細計画見積もり
 - 実行中の計画更新
 
 Planning Engine は、単純な ToDo を作るだけではない。ゴール達成までの探索空間を整理し、品質を落とさずに最終的な完了時間を短くする経路を選択する。
@@ -81,6 +82,69 @@ Optimization Principle は、Planning Engine が計画を最適化するとき�
 5. コンテキスト切替最小化
 
 v2 は、単純に目先の作業時間が短い経路を選ばない。品質低下、手戻り、再確認、依存待ちを含めた最終的な完了時間が最小となる経路を選択する。
+
+## Preflight Routing / Orchestration Cost Gate
+Preflight Routing / Orchestration Cost Gate は、Plan SA を起動するかどうかの粗い判断と、Plan SA 起動後の詳細計画見積もりを分離する設計観点である。
+
+中心判断は、作業規模だけでSA起動を決めないことである。Parent は Plan SA 起動前に Preflight Estimate / Routing Gate として粗い起動判断だけを行い、Plan SA は起動後に Detailed Planning / Detailed Estimate として詳細判断材料を整理する。
+
+責務分離は次の2段階とする。
+
+```text
+Parent
+  └─ Preflight Estimate / Routing Gate
+
+Plan SA
+  └─ Detailed Planning / Detailed Estimate
+```
+
+この設計観点は、v1 の現行運用ルールを置き換えない。現行運用では `docs/orchestration-process.md` を正本とし、実装、監査、レビュー、停止、完了判定は v1 に従う。
+
+Parent の Preflight Estimate / Routing Gate は、ユーザー要求の明確さ、変更対象の明示有無、修正規模の概算、リスク、情報分離価値、Plan SA を起動する価値、Audit / Review を分離する価値、並列SAが過剰かどうかだけを見る。判定対象は、この依頼を Plan SA に渡すべきか、軽量ルートでよいか、フルルートが必要かに限る。
+
+Parent は Preflight Estimate / Routing Gate で、実装計画の詳細化、Task Graph の具体化、Done補完、Scope補完、テスト条件推定、実装判断を行わない。
+
+Plan SA の Detailed Planning / Detailed Estimate は、Goal Definition、Dependency Planning、Task Graph 草案、Parallel Scheduling 草案、Replan条件、Quality Gate観点、後続SA構成案、テスト要求の整理を扱う。Plan SA も実行許可や境界は作らない。
+
+Preflight Estimate / Routing Gate と Detailed Planning / Detailed Estimate は、次の順序で評価する。
+
+1. Isolation Gate: Audit の情報遮断価値、Review の第三者視点価値、Plan の構造化価値を評価する。
+2. Orchestration Cost Gate: Isolation Gate の結果を維持したまま、トークン効率、SA起動数、コンテキスト複製量、並列化オーバーヘッドを評価する。
+
+Orchestration Cost Gate は Isolation Gate の後に評価する。分離価値が高い工程は、効率が悪くても維持する。
+
+作業規模分類は次のとおりである。Parent は Preflight で粗い分類として扱い、Plan SA は起動後に詳細見積もりとして扱う。
+
+- Small: 明示境界が狭く、変更対象が少なく、依存関係が少ない作業。
+- Medium: 複数ファイル、複数工程、または限定的な依存関係を含む作業。
+- Large: 広い範囲、複数コンポーネント、段階的実行、または複数の検証観点を含む作業。
+- Risky: 公開API / 認証・権限 / データ永続化 / 課金 / 秘密情報・個人情報 / テスト信頼性 / AI制御文書など、失敗時の影響が大きい作業。Risky は Small / Medium / Large と併記できる。
+
+Risky 分類は設計観点であり、v1 の多視点並列検証の閉じた起動条件を拡張しない。Small でも Risky なら分離を維持する。
+
+トークン効率予測は、入力トークン、出力トークン、SA起動数、コンテキスト複製量、並列化オーバーヘッド、再修正確率を扱う。Parent は概算だけを扱い、Plan SA は起動後に詳細判断材料として扱う。
+
+分離価値評価は次を扱う。
+
+- Plan の構造化価値: 境界、依存関係、停止条件、テスト条件を実行前に整理する価値。
+- Audit の情報遮断価値: 実装経緯や事前評価から切り離して、契約と成果物を照合する価値。
+- Review の第三者視点価値: 監査結果本文に影響されず、品質、設計、テスト妥当性、周辺影響を確認する価値。
+
+Plan SA は起動後、後続SA構成案として次を候補にしてよい。
+
+- Implement SA を省略できる条件: 実装、修正、ファイル変更が不要な場合。変更が必要な場合、親の直接実装へ置き換えない。
+- Audit SA を軽量化できる条件: 契約照合の観点を狭くできる場合。軽量化しても Audit Contract と必要な関連仕様だけを渡す情報分離は維持する。
+- Review SA を省略できる条件: PRレビュー相当の品質確認対象となる差分がない場合、または正本が省略を明示している場合。v1 で監査SA通過後にレビューSAが必須の経路では省略しない。
+- 並列SAを使う条件: 独立性基準または非破壊検証の起動条件を満たし、並列化オーバーヘッドより分離価値または手戻り削減効果が高い場合。
+
+禁止事項は次のとおりである。
+
+- 親が直接実装する抜け道にしない。
+- Cost削減を理由に Audit / Review の情報分離を壊さない。
+- Small 判定だけで軽量ルートへ流さない。
+- Small でも Risky なら分離を維持する。
+- Review 省略条件を正本より広げない。
+- 並列化を理由に Contract、Constraints、Quality Gate を曖昧にしない。
 
 ## Dependency Planning
 Dependency Planning は、作業を有向グラフとして扱う設計である。
@@ -347,17 +411,19 @@ v1 の作業単位、停止条件、完了判定を Goal → Planning → Execut
 ### 段階4: 採用判断
 v2 の自律オーケストレーション設計が v1 の安全性を下げずに運用できると確認された場合だけ、現行運用ルールへの昇格を人間が判断する。
 
-## v1計画フェーズの Planning Engine 化実施方針
-この方針は、次PRで v1 の Plan フェーズに v2 Planning Engine の観点を追加するための実施方針である。v2 は v1 を置き換えるものではなく、Plan 段階で使う追加観点として扱う。
+## v1計画フェーズと Preflight Routing Gate の Planning Engine 化実施方針
+この方針は、次PRで v1 の Plan 起動前 Preflight と Plan フェーズに v2 Planning Engine の観点を追加するための実施方針である。v2 は v1 を置き換えるものではなく、Preflight と Plan 段階で使う追加観点として扱う。
 
 ### 作成対象
 - 実施方針
 - プラン作成指示書
 
 ### 範囲
-- v1 の現行運用ルールを維持したまま、Plan フェーズだけを移行対象にする。
+- v1 の現行運用ルールを維持したまま、Plan 起動前 Preflight と Plan フェーズだけを移行対象にする。
+- Parent の Preflight Estimate / Routing Gate と Plan SA の Detailed Planning / Detailed Estimate を分離する。
 - Plan フェーズに追加する計画観点を整理する。
 - 追加観点は Goal Definition / Dependency Planning / Task Graph / Parallel Scheduling / Replan条件 / Quality Gate とする。
+- Preflight Routing / Orchestration Cost Gate は、Parent の粗い起動判断と Plan SA 起動後の詳細見積もりを分ける判断材料として追加する。
 - 次PRで、Plan フェーズの本文修正に進むための作業計画を作成できる状態にする。
 - Parallel Scheduling は、物理的な同時実行ではなく、計画上の並列可能性と依存関係上独立して扱える作業の識別として表現する。
 
@@ -366,12 +432,16 @@ v2 の自律オーケストレーション設計が v1 の安全性を下げず�
 - 実装、監査、レビュー、停止、完了判定の手順変更
 - DSL の意味変更
 - `commit` / `push` / `deploy` / 外部送信などの実行許可変更
-- Plan フェーズ以外への v2 語彙の適用
+- Plan 起動前 Preflight と Plan フェーズ以外への v2 語彙の適用
+- Parent による実装計画の詳細化、Task Graph 具体化、Done補完、Scope補完、テスト条件推定、実装判断
+- コスト削減を理由にした Audit / Review の情報分離変更
+- Review 省略条件を v1 の正本より広げる変更
 
 ### 維持する前提
 - 現行運用ルールの正本は `docs/orchestration-process.md` のままとする。
 - 実装、監査、レビュー、停止、完了判定は v1 準拠のままとする。
-- v2 語彙は、v1 を置き換える語彙ではなく、Plan 段階の追加観点としてだけ使う。
+- v2 語彙は、v1 を置き換える語彙ではなく、Preflight と Plan 段階の追加観点としてだけ使う。
+- Orchestration Cost Gate は Isolation Gate の後に評価し、分離価値が高い工程は効率が悪くても維持する。
 - `docs/orchestration-v2.md` は、採用判断前の現行運用ルールとして扱わない。
 
 ### 次PRの作業計画に含める観点
@@ -381,5 +451,6 @@ v2 の自律オーケストレーション設計が v1 の安全性を下げず�
 - Parallel Scheduling: 物理並列ではなく、依存関係上独立して扱える作業と実行順序候補を識別する。
 - Replan条件: 計画更新が必要になる観測事実や停止条件を整理する。
 - Quality Gate: Plan フェーズの計画が v1 の境界項目と矛盾していないことを確認する。
+- Preflight Routing / Orchestration Cost Gate: Parent の粗い作業規模分類、Plan SA 起動価値、軽量ルート / フルルート候補、Plan SA 起動後の詳細見積もり、禁止事項を整理する。
 
-次PRの計画は、上記観点を `prompts/plan.md` と `docs/orchestration-process.md` の Plan フェーズへ反映するための作業単位として整理する。反映時も、実装、監査、レビュー、停止、完了判定の v1 手順は変更しない。
+次PRの計画は、上記観点を `prompts/plan.md` と `docs/orchestration-process.md` の Preflight と Plan フェーズへ反映するための作業単位として整理する。反映時も、実装、監査、レビュー、停止、完了判定の v1 手順は変更しない。
