@@ -1,16 +1,16 @@
 # オーケストレーション v2 設計
 
 ## 位置づけ
-この文書は、設計履歴/rationale/旧v2検討資料である。現行運用ルールではない。現行正本は `docs/orchestration-process.md` である。
+この文書は、採用済み運用構造の設計履歴/rationale である。現行運用ルールではない。現行正本は `docs/orchestration-process.md` である。
 
 この文書が記述した自律オーケストレーション設計（Execution Lifecycle / Planning Engine / Optimization Principle / Continuous Verification / Goal Complete / Toolbox / Contract 群 / End-to-End Contract Matrix / Quality Gate / Success Criteria など）は、切替により `docs/orchestration-process.md` へ運用構造として採用済みである。以後、運用判断の根拠は `docs/orchestration-process.md` を参照する。この文書は採用に至った設計理由と検討履歴を残すために保持する。
 
 以下の本文は、採用前の設計検討時点の記述である。採用済みの運用ルールとして読まず、設計履歴として扱う。特に §v1からv2への移行段階 と §v1計画フェーズと Preflight Routing Gate の Planning Engine 化実施方針 は、切替方針と矛盾するため各節の冒頭で無効であることを明記している。
 
 ## Mission
-v2 の目的は、AI 駆動開発を「安全に実行するためのルール集」から「要求を満たす実装完了へ最短経路で到達する自律型 Software Architect の行動モデル」へ発展させることである。
+この設計の目的は、AI 駆動開発を「安全に実行するためのルール集」から「要求を満たす実装完了へ最短経路で到達する自律型 Software Architect の行動モデル」へ発展させることであった。
 
-v2 は次を目指す。
+この設計は次を目指した。
 
 - AI がゴールを理解し、必要タスクを抽出する。
 - AI が依存関係を解析し、計画上並列可能な作業を発見する。
@@ -19,7 +19,7 @@ v2 は次を目指す。
 - Contract / Constraints / Quality Gate / Toolbox を、ライフサイクルを支える構成要素として扱う。
 
 ## Execution Lifecycle
-v2 の実行ライフサイクルは、Requirement → Goal Definition → Planning → Dependency Analysis → Task Graph → Parallel Scheduling → Execution → Continuous Verification → Replan → Goal Complete である。
+この設計が定義した実行ライフサイクルは、Requirement → Goal Definition → Planning → Dependency Analysis → Task Graph → Parallel Scheduling → Execution → Continuous Verification → Replan → Goal Complete である。
 
 このライフサイクルは、Goal → Planning → Execution → Verification → Replan → Goal Complete の流れを中心に構成する。
 
@@ -51,7 +51,7 @@ Goal は次を保持する。
 AI は、明示されていない境界を補完してはならない。Goal に必要な境界が不足している場合、AI は不足項目を返す。
 
 ## Planning Engine
-Planning Engine は、v2 の中心概念である。
+Planning Engine は、この設計の中心概念である。
 
 Planning Engine は、AI が Software Architect として実装開始前に最適な実行計画を構築し、実行中も計画を更新するための機構である。
 
@@ -81,7 +81,7 @@ Optimization Principle は、Planning Engine が計画を最適化するとき�
 4. 手戻り最小化
 5. コンテキスト切替最小化
 
-v2 は、単純に目先の作業時間が短い経路を選ばない。品質低下、手戻り、再確認、依存待ちを含めた最終的な完了時間が最小となる経路を選択する。
+この設計では、単純に目先の作業時間が短い経路を選ばない。品質低下、手戻り、再確認、依存待ちを含めた最終的な完了時間が最小となる経路を選択する。
 
 ## Preflight Routing / Orchestration Cost Gate
 Preflight Routing / Orchestration Cost Gate は、Plan SA を起動するかどうかの粗い判断と、Plan SA 起動後の詳細計画見積もりを分離する設計観点である。
@@ -98,7 +98,7 @@ Plan SA
   └─ Detailed Planning / Detailed Estimate
 ```
 
-この設計観点は、v1 の現行運用ルールを置き換えない。現行運用では `docs/orchestration-process.md` を正本とし、実装、監査、レビュー、停止、完了判定は v1 に従う。
+この設計観点は、現行運用ルールを置き換えるものとして書かれたものではない。現行運用では `docs/orchestration-process.md` を正本とし、実装、監査、レビュー、停止、完了判定はその正本に従う。
 
 Parent の Preflight Estimate / Routing Gate は、ユーザー要求の明確さ、変更対象の明示有無、修正規模の概算、リスク、情報分離価値、Plan SA を起動する価値、Audit / Review を分離する価値、並列SAが過剰かどうかだけを見る。判定対象は、この依頼を Plan SA に渡すべきか、軽量ルートでよいか、フルルートが必要かに限る。
 
@@ -382,15 +382,15 @@ Replan へ戻す観測事実は、Goal 達成までの計画更新に必要な�
 ## Constraints
 Constraints は、Planning Engine と Execution が越えてはならない境界である。
 
-v2 の Constraints は次を含む。
+この設計の Constraints は次を含む。
 
 - AI は対象、範囲、完了条件、品質基準、実行許可を補完しない。
-- 現行運用ルールを変更する場合は、v1 の正本を明示対象に含める。
+- 現行運用ルールを変更する場合は、現行正本 `docs/orchestration-process.md` を明示対象に含める。
 - `commit` / `push` / `deploy` / 外部送信は、Contract で明示許可された場合だけ行う。
 - テスト期待値の変更、skip、xfail、assertion 緩和、失敗パスの握りつぶしを完了の近道にしない。
 - 便乗リファクタ、命名変更、移動、削除、構成変更を Contract 外で行わない。
 - 原因不明の探索的修正を行わない。
-- v2 文書を、採用前に現行運用ルールとして扱わない。
+- この設計文書自体を現行運用ルールとして扱わない。
 - 情報遮断は Orchestration Cost Gate より優先される。Audit / Review の情報分離がコスト削減、並列化、軽量化より優先される。
 
 Constraints に抵触する場合、AI は作業を停止し、抵触した境界を返す。
@@ -430,13 +430,13 @@ Toolbox の利用は、権限ではなく条件付き能力である。道具が
 ## SSOT
 SSOT は、判断の根拠として優先する正本である。
 
-v2 設計中の SSOT は次の関係を持つ。
+SSOT は次の関係を持つ。
 
 - 現行運用ルールの SSOT は `docs/orchestration-process.md` である。
 - 設計理由と書き味の SSOT は `docs/prompt-guide.md` である。
-- v2 の自律オーケストレーション設計の SSOT は、この文書である。
+- 本文書へ採用された運用構造の設計履歴/rationale は `docs/orchestration-v2.md`（この文書）である。現行運用ルールではない。
 
-矛盾がある場合、現行運用では `docs/orchestration-process.md` を優先する。この文書は、v1 の正本を変更しない。
+矛盾がある場合、現行運用では `docs/orchestration-process.md` を優先する。この文書は現行の正本を変更しない。
 
 ## AIへ委譲する判断
 AIへ委譲する判断は、Contract の範囲内で完結する仮決定に限る。
@@ -465,7 +465,6 @@ Execution 単体へ委譲する判断は、実装方法の詳細、ファイル�
 
 - 目的、対象、範囲、完了条件、品質基準、実行許可の確定
 - SSOT の採用、変更、優先順位の決定
-- v2 を現行運用へ昇格する判断
 - Contract 外の仕様変更、構成変更、対象拡張の判断
 - `commit` / `push` / `deploy` / 外部送信の許可
 - テスト条件が不足している場合の追加定義
@@ -474,9 +473,9 @@ Execution 単体へ委譲する判断は、実装方法の詳細、ファイル�
 AI は、人間が保持する判断を推定で代替しない。
 
 ## Success Criteria
-v2 の成功条件は、単に実装が完了したことではない。
+この設計が定義した成功条件は、単に実装が完了したことではない。
 
-v2 の成功条件は、最小時間で要求を満たし、品質基準を満たした状態に到達することである。
+この設計が定義した成功条件は、最小時間で要求を満たし、品質基準を満たした状態に到達することである。
 
 成功には次を含む。
 
@@ -486,7 +485,7 @@ v2 の成功条件は、最小時間で要求を満たし、品質基準を満�
 - 依存待ち、不要確認、手戻り、コンテキスト切替が最小化されている。
 - 成果物と確認結果によって完了を説明できる。
 
-品質と速度を両立することが、v2 のオーケストレーションの責務である。
+品質と速度を両立することが、この設計におけるオーケストレーションの責務である。
 
 ## v1からv2への移行段階
 この節は採用済み（切替）により無効な歴史的記述である。移行は段階移行ではなく切替で実施され、この節の段階0-4・昇格前の確認基準・昇格判断の手順は現行運用ルールではない。当時の確認基準（全受け渡し契約の定義完結 / v1安全性指標の非低下 / 情報分離 / 人間保持判断の境界）は、現行正本 `docs/orchestration-process.md` の各契約節・§Quality Gate・§完了条件・§人間が保持する判断で満たされている。以下は設計検討時点の記述として残す。
