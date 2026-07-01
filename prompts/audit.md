@@ -14,11 +14,13 @@
 ## 入力
 - `audit.md` の本文または要約 / Audit Contract / 必要な関連仕様
 - Audit Contract は、実装指示書 / Execution Contract / `target / scope / done / tests / stop` / 変更ファイル / 差分 / テスト結果 / 停止理由 / Replan条件に該当する観測事実 / 監査観点を含む。
+- 実装指示書、差分、テスト結果などは Audit Contract の構成項目として受け取り、個別の別系統入力として扱わない。
 - Audit Contract 内にコード変更を含む差分がある場合、明示された `repo-context` または実装指示書に列挙された関連仕様を自分で読む。
 
 ## 入力禁止
 - 実装経緯・背景・実装過程の説明
 - 事前評価・「この点は問題なし」などの先入れ判断
+- 他SAの指摘内容・判断理由・個別評価
 
 ## ルール
 - Audit Contract の実装指示書、Execution Contract、`target / scope / done / tests / stop`、変更ファイル、差分、テスト結果、停止理由、Replan条件に該当する観測事実、監査観点を照合する。

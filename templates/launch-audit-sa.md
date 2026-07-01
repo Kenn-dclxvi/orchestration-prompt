@@ -8,20 +8,11 @@
 以下を非破壊で監査してください。
 
 監査対象:
-- 承認済み実装指示書
-- 差分
-- テスト結果
-- 必要に応じて関連仕様
-- AI制御文書が変更対象の場合は、変更後の当該文書全体
+- Audit Contract
+- 必要な関連仕様（AI制御文書が変更対象の場合は、変更後の当該文書全体を含む）
 
-[承認済み実装指示書]
-{{APPROVED_IMPLEMENTATION_INSTRUCTION}}
-
-[差分]
-{{DIFF}}
-
-[テスト結果]
-{{TEST_RESULTS}}
+[Audit Contract]
+{{AUDIT_CONTRACT}}
 
 [関連仕様]
 {{RELATED_SPECS}}
