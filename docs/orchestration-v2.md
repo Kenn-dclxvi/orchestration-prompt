@@ -200,6 +200,27 @@ Execution Contract は次を保持する。
 
 Execution が判断してよい範囲は、実装方法の詳細、ファイル編集順、Contract 範囲内で実装に直接必要な軽微なリファクタリング、Toolbox 選択に限る。Goal変更、Scope変更、Contract違反、大きな設計変更、新しい依存関係の発見は、Execution が補完せず Replan へ戻す観測事実として扱う。
 
+## Audit Contract
+v1 の Execution→Audit 受け渡しでいう Audit Contract は、Execution の成果物を Audit が契約照合対象として消費するための契約である。これは v2 の Verification / Quality Gate を、v1 の監査境界と矛盾しない範囲で写像したものであり、現行運用ルールを昇格または変更しない。
+
+Audit Contract は次を保持する。
+
+- 実装指示書
+- Execution Contract
+- `target / scope / done / tests / stop`
+- 変更ファイル
+- 差分
+- テスト結果
+- 停止理由
+- Replan条件に該当する観測事実
+- 監査観点
+
+Audit は、計画や実装を良くする工程ではなく、Audit Contract と成果物が一致しているかを見る工程である。再設計、実装改善、品質改善レビュー、計画更新は Audit Contract の責務に含めない。
+
+必要な関連仕様は、Audit Contract と成果物の一致確認に必要な補助入力であり、Audit の責務を広げない。監査観点も照合範囲を絞るための項目であり、再設計、実装改善、品質改善レビュー、計画更新の根拠にしない。
+
+Replan条件に該当する観測事実は、Audit が再計画するための入力ではない。Audit は、その観測事実が Execution Contract、`target / scope / done / tests / stop`、差分、テスト結果、停止理由と矛盾していないかだけを照合する。
+
 ## Constraints
 Constraints は、Planning Engine と Execution が越えてはならない境界である。
 
