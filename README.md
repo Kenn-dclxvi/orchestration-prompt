@@ -103,6 +103,16 @@ THE-CAPTION 用の現在形は `overlays/the-caption/` に置く。
 - `scripts/check-placement.sh` は、構成項目の逐語列挙が root と overlay の `AGENTS.md` 本文へ再混入していないか（配置規律）を検査する。規律の根拠は `docs/prompt-guide.md`。
 - `scripts/check-scripts.test.sh` は、検査スクリプト群の回帰テストを実行する。
 
+## 関連リポジトリ
+
+このプロンプトセットは、計測基盤と適用先とあわせて「規約 → 計測 → 適用」の3層で運用している。
+
+| リポジトリ | 役割 |
+| :--- | :--- |
+| [orchestration-prompt](https://github.com/Kenn-dclxvi/orchestration-prompt) | **規約**。エージェント実行制御の汎用プロンプトセット正本（本リポジトリ） |
+| [agent-execution-control-lab](https://github.com/Kenn-dclxvi/agent-execution-control-lab) | **計測**。制御の変更が成果品質・token・所要時間・実行経路へ与える影響を再現可能に測る研究基盤 |
+| [the-caption](https://github.com/Kenn-dclxvi/the-caption) | **適用**。このプロンプトセットを適用して実運用しているポートフォリオ評価システム |
+
 ## 契約
 
 このプロンプトセット自体は実行許可を与えない。実行許可は、現在のユーザー指示または対象リポジトリ内の承認済み実装指示書から与えられる必要がある。
